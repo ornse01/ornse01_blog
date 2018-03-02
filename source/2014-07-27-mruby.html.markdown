@@ -1,0 +1,84 @@
+---
+title: mrubyのテスト
+date: 2014-07-27 03:09:05
+tags: mruby_brightv_hello, 
+---
+さて、mrubyには、unit test用の機能も含まれております。
+
+[shell]
+% ruby minirake test
+[/shell]
+
+ビルド時に指定するターゲット名に"test"と指定すると、テスト用の実行ファイルが生成・実行され、その結果が表示されます。
+
+mrubyコア本体のテストのほか、自作のmrbgemsなんかにもテストコードを入れて、自動的にテスト用バイナリにリンク・実行する機能が備わっています。
+
+自分は割とテストは書く派なので、この機能は有効活用したいところ。まずは超漢字上で実行できるバイナリを作らなければなりません。
+
+とはいえ、当然、普通にビルドしてできるテスト用バイナリはposix前提だったりするわけで超漢字ではそのままでは動かせない……。
+
+このファイル(<a href="https://github.com/mruby/mruby/blob/e43341b4607a2596ba2b6542acc8406912cf289a/test/driver.c" title="mruby/mruby mruby/test/driver.c" target="_blank">/mruby/test/driver.c</a>)を書き換えればいいわけだけど、mruby本体にはできる限り手を入れたくないし、そもそも書き換えちゃうとホスト環境側のビルドが通らなくなるし……。
+
+と思ってたら、<a href="https://github.com/mruby/mruby/blob/e43341b4607a2596ba2b6542acc8406912cf289a/doc/compile/README.md" title="mruby/mruby mruby/doc/compile/README.md" target="_blank">ドキュメント</a>にこんな記述が
+
+<blockquote>
+If you want mrbtest.a only, You should set conf.build_mrbtest_lib_only
+</blockquote>
+
+<a href="http://ornse01.b.sourceforge.jp/2014/07/22/mruby%e3%81%aebuild_config-rb-for-%e8%b6%85%e6%bc%a2%e5%ad%97/" title="mrubyのbuild_config.rb for 超漢字">こないだ説明した</a><code>conf.build_mrbtest_lib_only</code>てオプションをつけると、mrbtest.a っていうライブラリの生成で止まる、と。
+
+どこにコレができるかというと、<code>[ビルドディレクトリ]/test/mrbtest.a</code>なわけでつまり通常のテストはこれをリンクしているというわけです。<a href="https://github.com/mruby/mruby/blob/e43341b4607a2596ba2b6542acc8406912cf289a/test/driver.c" title="mruby/mruby mruby/test/driver.c" target="_blank">/mruby/test/driver.c</a>の上の方にも、<code>void mrb_init_mrbtest(mrb_state *);</code>って関数を参照するよう書いてあるし。ヘッダは無いみたいだけど、これ呼べば良さそう。
+
+ってか、それを前提に<a href="https://github.com/mruby/mruby/blob/e43341b4607a2596ba2b6542acc8406912cf289a/test/driver.c" title="mruby/mruby mruby/test/driver.c" target="_blank">/mruby/test/driver.c</a>を読むと、このライブラリをリンクするとどうやらrubyのメソッドとして<code>report()</code>ってのが定義されてるから、それを呼び出せばテストコードが実行されるっぽい。
+
+となれば、クロスコンパイル設定にこのオプションを指定して、mruby本体のとは別のところにdriver.cをBTRON用に書き換えたものを置いて、クロスコンパイルしたmrbtest.aをリンクすればテスト用の実行ファイルができるわけですなー。
+
+そんなわけでこんな感じ。
+<ul>
+	<li><a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/scm/blobs/9d0e873af7a07fdc75bf23c321b8f120981e8d1b/src/driver.c" title="/src/driver.c" target="_blank">/src/driver.c</a></li>
+	<li><a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/scm/blobs/9d0e873af7a07fdc75bf23c321b8f120981e8d1b/src/Rakefile" title="/src/Rakefile" target="_blank">/src/Rakefile</a></li>
+</ul>
+
+pcatディレクトリで<code>% rake test</code> って呼ぶと、mrbtest.out って実行ファイルが作られるようにして、それを超漢字上に持っていってコンソールから実行すればテストが走ります。
+
+……Rakefileの書き方はもうちょっと工夫したいな。
+
+まあともかく超漢字版mrbtest.outを実行して見たところ……、
+
+<h2>やってみた結果その1：数値絡み</h2>
+アレです。<a href="http://ornse01.b.sourceforge.jp/2014/07/26/mruby%e3%83%93%e3%83%ab%e3%83%89%e3%82%a8%e3%83%a9%e3%83%bc%e3%81%ae%e8%a7%a3%e6%b1%ba/" title="mrubyビルドエラーの解決">ビルドを通すために継ぎ足したやつ</a>。
+
+自作の<code>isinf()</code>とか<code>NAN</code>絡みのバグが見つかったので直しました。
+
+うむ。こういうのがあるからテストはやっておくに限ります。
+
+<h2>やってみた結果その1：__FILE__</h2>
+<a href="https://github.com/mruby/mruby/blob/e43341b4607a2596ba2b6542acc8406912cf289a/test/t/syntax.rb" title="mruby/mruby mruby/test/t/syntax.rb" target="_blank">このテスト</a>のですねー、一番上のやつに引っかかったのですよ。
+
+<code>__FILE__</code>のテストね。.rbファイルのパスを示す文字列になる予約語です。
+
+なんでこれがfailするのだろう……。
+
+調べてみたところ、<code>__FILE__</code>の値がですね、'../src/mruby/test/t/syntax.rb'になってたのですよ。
+
+テスト的に期待される値は'test/t/syntax.rb'もしくは'test\t\syntax.rb'なのに。
+
+この識別子、ビルドディレクトリからの相対パスになるみたい。( 5c50bcd20a68394da3b90cf2ac3fba2b1ed43cff 時点)
+
+今回の場合、<a href="http://ornse01.b.sourceforge.jp/2014/07/17/mruby%e3%81%ae%e3%82%af%e3%83%ad%e3%82%b9%e3%82%b3%e3%83%b3%e3%83%91%e3%82%a4%e3%83%ab/" title="mrubyのクロスコンパイル">mrubyのソースと別のディレクトリでビルドしてる</a>ので、'../src/mruby/test/t/syntax.rb'になるわけです。
+
+でも、テストコードは、ソースディレクトリ直下でビルドした場合の結果を想定してるわけで、そりゃまあ一致するわけないなあ……。
+
+mrubyのソースディレクトリ直下でビルドすると通るけど、別のディレクトリでビルドするとfailするわけです。<a href="http://ornse01.b.sourceforge.jp/2014/07/26/mruby%e3%81%ae%e3%83%93%e3%83%ab%e3%83%89%e3%82%b3%e3%83%9e%e3%83%b3%e3%83%89/" title="mrubyのビルドコマンド">別のディレクトリでビルドするのは正規の機能と思われる</a>ので、こりゃmruby本体を直すべきだよね。んでプルリクエストでも投げるとか。
+
+……どっちに直すの？　<ul><li><code>__FILE__</code>の値をどこでビルドしても'test/t/syntax.rb'になるようにする</li><li>もしくは、テストケースの期待結果をどこでビルドしても平気なようにする</li></ul>
+
+判断つきまへん……。
+
+<a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_port/scm/commits/18eb0e744086e015891714d543114be582a62336" title="mruby-brightv-port コミット詳細：18eb0e744086e015891714d543114be582a62336" target="_blank" style="font-size:xx-large">禁断の必殺技コメントアウト！！</a>
+
+いやー、よかったわー、<a href="http://ornse01.b.sourceforge.jp/2014/07/26/mruby%e3%83%93%e3%83%ab%e3%83%89%e3%82%a8%e3%83%a9%e3%83%bc%e3%81%ae%e8%a7%a3%e6%b1%ba/" title="mrubyビルドエラーの解決">mrubyをフォークした作業部屋作っといて</a>よかったわー。
+
+ま、まあ<code>__FILE__</code>の挙動がおかしくて困ることはそうそうないだろうし(震え声)。
+
+つーか実際どっちが正しいのだろうねコレ。

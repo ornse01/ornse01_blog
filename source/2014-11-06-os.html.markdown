@@ -1,0 +1,76 @@
+---
+title: OS開発備忘録
+date: 2014-11-06 01:01:39
+tags: 未分類, 
+---
+何といいますか、いつかはOSとか作ってみたいなーとか思ってまして。当然TRON系ですよ。CTRONとか欲しいなーとか思ってたりしてまして。
+
+んで、なんとなく資料を探したり眺めたり程度はしてるのですよ。
+
+ちゅーわけで、今知ってる限りの資料をまとめてみました。
+
+新しめのPCを想定ねー。ブートから何となくな順番で。
+
+<h2>UEFI &amp; ACPI</h2>
+<a href="http://www.uefi.org/specifications" title="Specifications | Unified Extensible Firmware Interface Forum" target="_blank">Specifications | Unified Extensible Firmware Interface Forum</a>
+
+BIOSに代わる新しいファームウェアってやつですなー。あとACPIがらみもいつの間にかここに移ってた。
+
+OSを呼ぶ時の処理とか、OSからUEFIの機能を呼び出す方法とかが書かれてるので必要ですな。とりあえず、32bitの場合はプロテクトモード、64bitの場合はlongモードにまでUEFI側でしてくれるっぽい。
+
+<h2>PE/COFF</h2>
+<a href="http://msdn.microsoft.com/en-us/windows/hardware/gg463119.aspx" title="Microsoft PE and COFF Specification" target="_blank">Microsoft PE and COFF Specification</a>
+
+突然マイクロソフトのページだけどアレです。UEFIが直接サポートしてるオブジェクトフォーマットがPE/COFFだったりするので、少なくとも最初にロードされるプログラムを作るときはこの知識が必須です。
+
+UEFI仕様書のVer.2.4だと2.1.1章あたりに色々書いてます。とりあえず、OSのエントリポイントは<a href="http://www.interq.or.jp/chubu/r6/reasm/PE_FORMAT/3_4_1.html" title="S.S'S HOMEPAGE - 逆アセのスス乂 - MSDN技術資料（PE形式の解説）" target="_blank">ここ</a>のAddressOfEntryPointで指定されたアドレスに飛んでいくとか。
+
+<h2>x86/x64</h2>
+<a href="http://www.intel.co.jp/content/www/jp/ja/processors/architectures-software-developer-manuals.html" title="Intel® 64 and IA-32 Architectures Software Developer Manuals" target="_blank">Intel® 64 and IA-32 Architectures Software Developer Manuals</a>
+
+AMDの方の資料がみつからねえ……。
+
+とりあえず、OS作るならプロセッサの命令セットは押さえないとねー。
+
+<h2>AHCI</h2>
+<a href="http://www.intel.com/content/www/us/en/io/serial-ata/ahci.html" title="Advanced Host Controller Interface Specification" target="_blank">Advanced Host Controller Interface Specification</a>
+
+ディスクドライブっちゅーことでSerialATAのコントローラ仕様。SerialATA出始めはコントローラの仕様がバラバラだったらしいけど、もうそろそろ統一されてるんかね？
+
+<h2>GUID Partition Table</h2>
+資料はさっきのUEFIの仕様書の中。
+
+パーティション構造の新しいやつね。古いのだとプライマリ3つとロジカル1つにしか分けられないけど、新しいのだと、たくさん作れるっぽい？
+
+あとデカいディスクにも対応してるとか。
+
+<h2>グラフィクス</h2>
+<a href="https://01.org/linuxgraphics/documentation/driver-documentation-prms" title="Driver Documentation - PRMs" target="_blank">Intel Open Source Technrogy Center | Driver Documentation - PRMs</a>
+
+こいつはIntelのGPUのレジスタやら命令やらメモリ構造やらが書かれているドキュメントですな。
+
+GPUとかのドキュメントは公開されていないことが多いけど、Intelの場合は、これでいけそうですな。
+
+<h2>Ethernet</h2>
+<a href="http://www.intel.com/content/www/us/en/library/find-content.results.html?sTag=rintelproduct:intelethernetnetworkconnections&amp;sTag=rtargetaudience:softwaredevelopers" title="Intel Content Library : &quot;Intel® Ethernet Network Connections&quot;, &quot;Software Developers&quot;" target="_blank">Intel Content Library</a>
+
+またしてもIntel。今回は検索ページの結果に直リン。……なんかしばらく経ったらサイト構造が代わってリンクが無効になったりしそう。
+
+まあそれはともかく、ネットワークっちゅーことで、イーサネットのドライバを書くのに必要なレジスタやらなんやらの情報っす。
+
+<h2>ちゅーわけで</h2>
+<span style="font-size:large">Intel大好き(笑)</span>
+
+いや、まあ、マジな話Intelはいろんな情報を公開してくれているので、すげえありがたいっす。
+
+まあ、この情報だけで作ると、完全にIntelづくしのPCでしか動かないOSになりそうだけど。
+
+とりあえず、こんだけあれば、ブートして画面表示してネットにつなげてってのがデバイスの面では可能そうです。……理屈の上では。
+
+そりゃまあ、カーネルとデバイスドライバとファイルシステムとプロトコルスタックを全部実装とか考えたら、どんだけ時間かかるねんー、って話だけど。「OSを実装」って言ったらそこまでやりたいところではありますが。
+
+手間考えたら、ハードウェアは完全に固定ってのもアリな手ではありますかね。
+
+それはそうと、調べていると、色々妄想は広がるんですけどねえ。CTRON作ってー、64bitでー、デバイスドライバ揃えてー、仮想化支援機能使って超漢字動かしてー、画面はGPU使ってグリグリ動かしてー、ってな完全TRON OSマシン作れたらなー、とかさあ。
+
+実際にやるかどうかは……まあ、必要な規模と、割ける時間と、他に作りたいものとを考えると、いつになるやら、って感じです。

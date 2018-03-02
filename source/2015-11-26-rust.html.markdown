@@ -1,0 +1,98 @@
+---
+title: Rustメモ
+date: 2015-11-26 01:03:27
+tags: 未分類, 
+---
+<a href="https://www.rust-lang.org/" target="_blank" title="The Rust Programming Language">Rust</a>ってのは言語の方ね。
+
+ホントにメモ。
+
+<h2>multirust</h2>
+
+まずはこちら。<a href="https://github.com/brson/multirust" target="_blank" title="brson/multirust:Github">brson/multirust</a>
+
+複数のバージョンのrustの処理系を切り替えられるやつねー。rbenv的なヤツですな。
+
+色々合って、nightlyビルドを使う必要があるので、公式のインストーラーじゃなくて、こっちでインストール。
+
+readme読むと、アンインストールにもcurlでスクリプトをダウンロードする必要があるように書いてあるけど、インストール時のメッセージ見ると<code>/usr/local/lib/rustlib/uninstall.sh</code>に、アンインストールスクリプトがあるとか書いてある。
+
+んで、適当なディレクトリ作って<code>multirust override nightly</code>ってコマンド打つと、nightlyがダウンロードされた。
+
+そのディレクトリには特にファイルとかは作られてない様子。仕組みは把握してないけど<code>$HOME/.mulitrust</code>以下のどっかで、ディレクトリとバージョンの紐づけが記録されてるんかね？
+
+インストールされたバージョンを確認ってことで、<code>multirust show-override</code>ってコマンドを打つと、
+<pre>rustc 1.6.0-nightly (338cdd7e0 2015-11-24)
+cargo 0.7.0-nightly (79cb82d 2015-11-24)</pre>
+
+って出てきた。nightlyで日付指定したいときは、この日付使えばいいのかな？
+
+<code>$HOME/.mulitrust</code>以下を覗いても、日付らしきディレクトリ名は無いっぽい？　複数のnightly版を共存させたりは出来ないのかな？
+
+あと、<code>multirust override</code>してないディレクトリだとrust関連のコマンドは呼べないのね。事故を防ぐという意味では嫌いじゃないね、この仕様。
+
+<h2>「Writing an OS in Rust」</h2>
+続いてはこちらのブログ→「<a href="http://os.phil-opp.com/" target="_blank">Writing an OS in Rust</a>」。Rustを使ってOSを作るための、具体的なコード例を含めた解説が書かれています。
+
+つーか、その記事に、multirust入れてnightly版入れれって書いてあったから、入れたんだよね。
+
+さて、OS作るってのにも興味は引かれるんだが、今回の目的はそっちじゃないんですよー。
+
+OSが作れる → POSIXもなんも無いフリースタンディング環境でRustのコードが実行できる → 超漢字でだってきっと実行できる……といいな。
+
+ってなわけですねー。
+
+あとついでに、Rust系OSの情報まとめてるところ見つけた→<a href="https://github.com/flosse/rust-os-comparison" target="_blank">flosse/rust-os-comparison</a>
+
+<h2>Libcore</h2>
+んで、Rustでクロスコンパイルしようとしたら怒られるー。
+
+「<a href="http://os.phil-opp.com/cross-compile-libcore.html" target="_blank">Cross Compiling: libcore</a>」によれば、Libcoreが足りないそうで。
+
+私の環境は64bitのLinuxだから、インストールされるLibcoreも64bitのやつだけなので、32bit用のライブラリが入ってないから、コンパイルできない、と。
+
+まだ言語仕様は把握してないから、なんでコンパイルの段階でライブラリが必要なのかよく分かってないけど、とにかく必要なものは用意しないとあきまへん。
+
+どうも、Rustコンパイラ自体をビルドするときにtargetを指定する必要があるっぽいけど、面倒なので有りモノつかいます。
+
+multirustはコンパイル済みのnightly版をダウンロードしてくる仕組みだから、そこにある32bit版のライブラリ落としてくりゃええやろー。
+
+<oL><li><a href="http://static.rust-lang.org/dist/" target="_blank">ここ</a>から、インストールしたnighly版と同じバージョンの日付を探す。日付がずれてるとエラーになる。あと、上で「2015-11-24」版て表示されてたけど、<a href="http://static.rust-lang.org/dist/2015-11-25/index.html" target="_blank">2015-11-25版のライブラリ</a>が必要だった。JSTとUTCの時差かな？</li><li>んで「rust-std-nightly-i686-unknown-linux-gnu.tar.gz」をダウンロード</li><li>展開したら<code>rust-std-i686-unknown-linux-gnu/lib/rustlib/i686-unknown-linux-gnu/</code>ってディレクトリがあるから、それをまるごと<code>$(HOME)/.multirust/toolchains/nightly/lib/rustlib/
+</code>にコピー</li></ol>
+
+んで、64bitOSのRustでも、32bit用のライブラリがビルドできる、と。
+
+……面倒だねえ。自動化したいがはてさて。32bitOSならこの工程は要らないはずだがそれもなんだかなあ、って話だし。
+
+<h2>リンクして実行</h2>
+
+んで、環境が揃ったら、上記のブログの「<a href="http://os.phil-opp.com/setup-rust.html" target="_blank">Setup Rust</a>」のコードをコピペして、ビルドのコマンドだけ
+<pre>cargo build --target=i686-unknown-linux-gnu</pre>
+とする。
+
+そうすると、拡張子<code>.a</code>のファイルすなわちライブラリアーカイブができてるから、エントリーポイントとRust側の関数を呼ぶだけのC言語ソースを用意して、コンパイルしてライブラリとリンク。
+
+<span style="font-size:x-large">……ビルドできちゃったよ、実行できちゃったよ。</span>
+
+いや、何驚いてんだよって話だが。なんか簡単にできたので拍子抜け。
+
+うーむ。このへんでうまく行かなくて続きは後日〜、みたいなつもりだったのだが。
+
+まあ、空の関数呼んでるだけだから、なんにも出ないけどね。stdじゃなくてcore使ってるから、Hello worldすら出来ないし。
+
+<h2>今後</h2>
+当然、目標は、Rustを使ってBTRONプログラミングが可能かどうかの検証ですな。
+
+Rustの<a href="https://doc.rust-lang.org/stable/book/ffi.html" target="_blank">Foreign Function Interface</a>を使えばBTRON APIを直接呼べるハズだし。ウィンドウ出すぐらいは簡単だろう。
+
+んで、サンプルソースを作業部屋にあげて「どやー、RustからBTRON API呼んでるやろソースコード見てみい」みたいな感じで行きたいわけなんだけど……。
+
+やっぱ、開発環境を用意するのに、手動でライブラリを探してダウンロードして展開してコピーしてってのがね、ちょいとダサいっつーかなんつーか。
+
+いや、今はmultirustでnightly使ってるから、ユーザーディレクトリ以下にあるやつ好き勝手にいじるのは抵抗ないけど。
+
+しかし、今はnightlyでしか使えない機能も、ゆくゆくはstableに入るだろうし、debなりrpmなりでインストールできるようにもなるだろうし。となると、手作業でライブラリを置く、みたいな工程は避けたいところ。
+
+まあ、gcc使ってクロス開発環境構築となれば、コンパイラのビルドから入るのもありっちゃありではあるのだが。
+
+そのあたりの、整理をつけるのが先かなー？

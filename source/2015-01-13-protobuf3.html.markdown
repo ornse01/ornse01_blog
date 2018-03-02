@@ -1,0 +1,81 @@
+---
+title: protobuf3……だと……？
+date: 2015-01-13 01:56:07
+tags: protobuf_bvgsdk, 
+---
+<a href="https://github.com/google/protobuf/blob/master/CHANGES.txt" title="Github:protobuf/CHANGES.txt" target="_blank">https://github.com/google/protobuf/blob/master/CHANGES.txt</a>
+
+こちら、Protocol Buffersの更新履歴なわけですが、2014/12/01付で、version 3.0.0-alpha-1に上がってますね。
+
+んで、Protocol Buffersを自作しようと思って<a href="http://sourceforge.jp/users/ornse01/pf/protobuf_bvgsdk/" title="SourceForge.jp 作業部屋：protobuf_bvgsdk" target="_blank">作業部屋</a>作ったのが、2014/12/02だったわけですよ。
+
+<span style="font-size:x-large">3.0.0に上がってたの気づいてなかったーーーー！！！</span>
+
+とりあえず、ガビーンとか言っててもしょうがないので変更点を調べてみようか。
+
+<dl>
+<dt>1. Removal of field presence logic for primitive value fields, removal of required fields, and removal of default values. This makes proto3 significantly easier to implement with open struct representations, as in languages like Android Java, Objective C, or Go.</dt>
+<dd>
+ここのポイントは3つかな？<ul><li>プリミティブな値のフィールドプレゼンスロジックを削除</li><li>requiredフィールドを削除</li><li>デフォルト値を削除</li></ul>
+
+で、ひとつ目がわからん……。ふたつ目はフィールド定義にくっつける"required"ってのが無くなる、と。みっつ目もまあ読んだまんまかね。
+
+ひとつ目が何を指しているかがわからないけど、とりあえず置いといて。
+
+ふたつ目はデータをデシリアライズするときに、フィールドが必須かどうかを示す"required"を無くす、と。まあこれは、前方互換性を維持するには必須フィールド無いほうが便利だから、無くてもいいわな。
+
+みっつ目は、デシリアライズ時にフィールドがなかった時に、入れておくデフォルト値を無くす、と。
+
+Android Java, Objective C, Goで実装するときに楽になるとか書いているけど、どういう問題があって、これらをなくすと楽になるのかはよくわかりません。
+</dd><dt>2. Removal of unknown fields.</dt>
+<dd>unknown fieldの削除。
+
+unknown fieldsってのは多分<a href="https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.unknown_field_set?hl=ja" title="Google Developers: Protocol Buffers: unknown_field_set.h" target="_blank">これ</a>だね。
+
+定義ファイルで定義されていないフィールド番号の値を保存しておく機能ですな。</dd>
+<dt>3. Removal of extensions, which are instead replaced by a new standard type called Any.</dt>
+<dd>
+extentionの削除。"Any"と呼ばれる新しい標準型に置き換わる。
+
+extentionてのは<a href="https://developers.google.com/protocol-buffers/docs/proto?hl=ja#extensions" title="Google Developers: Protocol Buffers: unknown_field_set.h" target="_blank">コレ</a>ね。
+
+Protocol Buffersではフィールドに番号を指定するだけど、予約領域みたいなのを定義できるのね。
+
+別の定義ファイルで拡張して使えるようになってます。
+
+Cのライブラリでvoidポインタ渡して、ライブラリユーザ側で任意の値を保存しておくとかやるけど、そんなイメージで使うのかな？
+
+で、それが無くなる、と。"Any"なるデータ型が増えるからそれになるそうです。
+</dd>
+<dt>4. Fix semantics for unknown enum values.</dt>
+<dd>不明なenum値に対するセマンティクスの修正。
+
+これも定義ファイルとデータの食い違いの話だろうね。定義にないenum値が来た時の動作が変わる、と。
+
+……もともとの動作も新しい方の動作もわからんけど。</dd>
+<dt>5. Addition of maps.</dt>
+<dd>マップの追加。
+
+マップってあれね、言語によってハッシュって呼んだり辞書って呼んだりするやつね。キーと値の対応関係を記憶しておくデータ構造ね。
+
+確かに元々無かったねえコレ。
+
+んでも、値に名前つけるだけなら、普通に構造体のフィールド名使えばいいだろうし。定義ファイルを作るって仕組みな以上、ある程度静的に解決したほうがよさそうだし、動的にキーが変わるって用途はあんまりなさそうな気がするがはてさて。
+
+ってか、キーと値に使えるデータ型とか、シリアライズしたフォーマットがどんなんなるか、まだ(2015/01/13時点)ドキュメント化されていないから、なんともなあ。</dd>
+<dt>6. Addition of a small set of standard types for representation of time, dynamic data, etc.</dt>
+<dd>時間、動的データなどの標準タイプのデータ表現の小さな集合の追加。
+
+time型も今までなかったし、増えるのはいいね。「動的データ」ってのは2番で言ってる"Any"かね？</dd>
+<dt>7. A well-defined encoding in JSON as an alternative to binary proto encoding.</dt>
+<dd>バイナリエンコーディングの代替に、うまく定義されているJSONでのエンコーディング
+
+Protocol Buffersでは、シリアライズするデータはバイナリベースだったんだけど、そこにJSONエンコーディングを追加する、と。多分選択可能になるんだろうねえ。</dd></dl>
+
+なんか、似たようなこといくつか繰り返してる気もするけど、とりあえず、データ型の整理とか、未定義データの扱い方が変わったりとかしてるみたいね。
+
+まだアルファ版っぽいし、ドキュメント化されてない情報も多いから、自作のやつにこれ対応するかは不明。
+
+ってか、バージョン2とバージョン3を切り替えられる機能があるっぽいけど、それちょっと面倒だなあ……。
+
+まあ、もともとフル仕様対応する気は無いけどねっ(笑)

@@ -1,0 +1,12 @@
+---
+title: BlogAPIの資料
+date: 2011-08-02 15:31:51
+tags: 未分類, 
+---
+BlogのAPIの資料
+<ul>
+	<li><a href="http://blog.syuhari.jp/archives/1373">[WordPress] XML-RPC を使用する方法</a></li>
+	<li><a href="http://bpm.cocolog-nifty.com/d/cat36016795/index.html">ブログサービスの投稿方式・エンドポイント</a></li>
+	<li><a href="http://sozai.7gates.net/blog/docs/blogapi/">BlogAPIのエンドポイント集</a></li>
+</ul>
+とりあえず、このあたりの資料があればいけるかな？

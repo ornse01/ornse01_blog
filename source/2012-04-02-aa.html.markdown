@@ -1,0 +1,12 @@
+---
+title: AA用フォントの文字幅その２
+date: 2012-04-02 20:44:34
+tags: 未分類, 
+---
+こんなんあった。
+
+<a href="http://www.geocities.jp/mata_ri_watch/salon_01.html" title="ゼロから始めるAA講座">ゼロから始めるAA講座</a>
+
+ここの161にあるね。
+
+いやまあ、（´д｀）Editのヘルプ見たほうがいいんだろうけど。

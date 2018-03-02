@@ -1,0 +1,16 @@
+---
+title: 超漢字でmrubyを動かしたい
+date: 2014-07-14 02:24:32
+tags: mruby_brightv_hello, 
+---
+mrubyってのはコレねコレ。→<a href="https://github.com/mruby/mruby" title="GitHub mruby/mruby" target="_blank">GitHub mruby/mruby</a>。
+
+組み込み向け、などとよく言われていますが、要はコアからposix依存の部分をできる限り取り除いて、C言語さえ使えれば動作させられるようにしたものです。
+
+んじゃあ、BTRON上でも動かせるんじゃね？　っちゅーわけですね。
+
+まあ、rubyを超漢字上で動かした事例はあるんですけど、どれもunixエミュレータ使ってますからね。
+
+んでもmrubyならpure BTRONでいけるんじゃね？　ってことで<a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/" title="sourceforge作業部屋 mruby-brightv-hello" target="_blank">作業部屋</a>作ってチャレンジしてみました。
+
+とりあえず、超漢字上でunixエミュレータ無しでhello worldが出せる所が目標です。

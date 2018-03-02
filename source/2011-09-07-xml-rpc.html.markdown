@@ -1,0 +1,63 @@
+---
+title: XML-RPCのパラメータの処理のメモ
+date: 2011-09-07 22:13:27
+tags: 未分類, 
+---
+んで、次はXML-RPCなんだけど、まあCで実装されているオープンソースのライブラリはいくつかあるんだけど、ビルドしようとすると色んなライブラリに依存していたり、なんか使い方が良く分からなかったり面倒、と。<br />
+<br />
+methodResponse要素だけ、ちゃちゃっと解析して値が取れれば十分なんだけどなあ……。<br />
+<br />
+methodCallはわざわざXML-RPCライブラリ使わんでもXML文字列生成するぐらい簡単だし。
+<br />
+となると、methodResponse要素のパースだけ自力実装、かな？　blogger APIに特化して必要な値だけとるような実装にすれば、と思ったんだけどそれはそれで結構面倒になりそうな気がする。多分、汎用的なXML-RPCのパラメータの構造にしてしまって、それにアクセスするほうが楽な実装になりそう。<br />
+<br />
+<a href="http://www.xmlrpc.com/spec" target="_blank">XML-RPCの仕様</a>から、XML-RPCで出てくる要素は
+<ul>
+	<li>methodCall</li>
+	<li>methodResponse</li>
+	<li>methodName</li>
+	<li>params</li>
+	<li>param</li>
+	<li>value</li>
+	<li>i4</li>
+	<li>boolean</li>
+	<li>string</li>
+	<li>double</li>
+	<li>dateTime.iso8601</li>
+	<li>base64</li>
+	<li>struct</li>
+	<li>member</li>
+	<li>name</li>
+	<li>value</li>
+	<li>array</li>
+	<li>data</li>
+	<li>fault</li>
+</ul>
+んで、methodResponse要素の下の各要素の下には、
+<table>
+<tr><th>要素名</th><th>その中にくるもの</th></tr>
+<tr><td>methodResponse</td><td>一つのparams要素、もしくは一つのfault要素</td></tr>
+<tr><td>params</td><td>一つのparam要素</td></tr>
+<tr><td>param</td><td>一つのvalue要素</td></tr>
+<tr><td>value</td><td>i4要素、int要素、boolean要素、string要素、double要素、dateTime.iso8601要素、base64要素、struct要素、array要素、文字列、のうちのどれかが一つ</td></tr>
+<tr><td>i4</td><td>4バイトの符号付き整数</td></tr>
+<tr><td>int</td><td>4バイトの符号付き整数</td></tr>
+<tr><td>boolean</td><td>0 (偽) または 1 (真)</td></tr>
+<tr><td>string</td><td>文字列</td></tr>
+<tr><td>double</td><td>倍精度浮動小数点数</td></tr>
+<tr><td>dateTime.iso8601</td><td>日付と時刻</td></tr>
+<tr><td>base64</td><td>base64 でエンコードされたバイナリ</td></tr>
+<tr><td>struct</td><td>複数のmember要素</td></tr>
+<tr><td>member</td><td>name要素とvalue要素を一つずつ</td></tr>
+<tr><td>name</td><td>文字列</td></tr>
+<tr><td>array</td><td>一つのdata要素</td></tr>
+<tr><td>data</td><td>複数のvalue要素</td></tr>
+<tr><td>fault</td><td>一つのvalue要素</td></tr>
+</table>
+んで、これを元に状態マシン作って、expatのSAXコールバックから遷移させながら、ツリー構造を組み立てていけばできそうかな。<br />
+<br />
+methodCallの場合は、params要素の下に複数のparam要素が来るのと、fault要素が存在しない。それなら、複数のparam要素がとれて、fault要素も処理できるようにすれば、methodCallとmethodResponseで同じ状態マシンが使えるか。<br />
+<br />
+まあクライアント側でmethodCall要素を解釈する場面があるかっつーと疑問だけど。超漢字をサーバーにすることは無いだろうしなあ。まあ多分ソース的にはTRON系OSならそのまま使えそうになるとは思うけど。<br />
+<br />
+まあ、とりあえずmethodCall要素の解釈は考えない。<br />

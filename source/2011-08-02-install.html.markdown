@@ -1,0 +1,5 @@
+---
+title: install
+date: 2011-08-02 15:15:39
+tags: 
+---
