@@ -3,7 +3,7 @@ title: mrubyとlong doubleとfmt_fp.c
 date: 2015-12-10 23:58:10
 tags: mruby_brightv_hello, 
 ---
-ちゅーわけで、<a href="http://ornse01.b.osdn.me/2015/12/10/mruby-1-2-0%e5%af%be%e5%bf%9c%e4%bd%9c%e6%a5%ad/">コレ</a>について詳しく調べたので、改めて。
+ちゅーわけで、<a href="/2015/12/10/mruby-120.html">コレ</a>について詳しく調べたので、改めて。
 
 <h2>long double型</h2>
 
@@ -26,7 +26,7 @@ tags: mruby_brightv_hello,
 <h2>mrubyの浮動小数点数</h2>
 で、その<a href="https://github.com/mruby/mruby/blob/22464fe5a0a10f2b077eaba109ce1e912e4a77de/src/fmt_fp.c" target="_blank">fmt_fp.c</a>が何かっちゅーと、浮動小数点数を文字列に変換する処理ねー。まあ、<code>to_s</code> とかするのに使うんやろ。
 
-んでも、<a href="http://ornse01.b.osdn.me/2014/07/26/mruby%e3%83%93%e3%83%ab%e3%83%89%e3%82%a8%e3%83%a9%e3%83%bc%e3%81%ae%e8%a7%a3%e6%b1%ba/">以前のバージョンの時</a>はここらへんは一応コンパイル通ったわけで……。
+んでも、<a href="/2014/07/26/mruby.html">以前のバージョンの時</a>はここらへんは一応コンパイル通ったわけで……。
 
 とりあえず、状況を色々追ってみた。
 <ul><li><a href="https://github.com/mruby/mruby/commits/master/src/fmt_fp.c" target="_blank">History for fmt_fp.c</a></li>
