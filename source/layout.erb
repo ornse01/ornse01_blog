@@ -5,36 +5,48 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge;chrome=1' />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Blog Title<%= ' - ' + current_article.title unless current_article.nil? %></title>
+    <title><%= current_article.title + ' | ' unless current_article.nil?  %>ornse01のBlog</title>
     <%= feed_tag :atom, "#{blog.options.prefix.to_s}/feed.xml", title: "Atom Feed" %>
   </head>
   <body>
 
+    <header>
+      <h1><a href="/">ornse01のブログ</a></h1>
+      BTRONプログラマの、プログラミングのメモだったりブログのテストだったり
+    </header>
+    <hr>
+
     <div id="main" role="main">
+      <% unless current_article.nil? %>
+      <h1><%= current_article.title %></h1>
+      投稿日時：　<span><%= current_article.date.strftime('%Y年%m月%d日') %></span>
+      <br><br>
+      <% end %>
+      
       <%= yield %>
     </div>
 
-    <aside>
-      <h2>Recent Articles</h2>
-      <ol>
-        <% blog.articles[0...10].each do |article| %>
-          <li><%= link_to article.title, article %> <span><%= article.date.strftime('%b %e') %></span></li>
-        <% end %>
-      </ol>
+    <hr>
 
-      <h2>Tags</h2>
-      <ol>
+    <aside>
+      <h2>アーカイブ</h2>
+      <ul>
+        <% blog.articles.group_by {|a| [a.date.year, a.date.month] }.each do |ym, articles| %>
+          <li><%= link_to "#{ym[0]}年#{ym[1]}月", blog_month_path(ym[0], ym[1]) %></li>
+        <% end %>
+      </ul>
+
+      <h2>Feed</h2>
+      <ul>
+	<li><%= link_to 'Atom', "#{blog.options.prefix.to_s}/feed.xml" %></li>
+      </ul>
+
+      <h2>タグ</h2>
+      <ul>
         <% blog.tags.each do |tag, articles| %>
           <li><%= link_to "#{tag} (#{articles.size})", tag_path(tag) %></li>
         <% end %>
-      </ol>
-
-      <h2>By Year</h2>
-      <ol>
-        <% blog.articles.group_by {|a| a.date.year }.each do |year, articles| %>
-          <li><%= link_to "#{year} (#{articles.size})", blog_year_path(year) %></li>
-        <% end %>
-      </ol>
+      </ul>
     </aside>
   </body>
 </html>

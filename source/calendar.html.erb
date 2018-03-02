@@ -1,20 +1,18 @@
 ---
 pageable: true
 ---
-<h1>Archive for
+<h1>
   <% case page_type
      when 'day' %>
-    <%= Date.new(year, month, day).strftime('%b %e %Y') %>
+    日別アーカイブ： <%= Date.new(year, month, day).strftime('%b %e %Y') %>
   <% when 'month' %>
-    <%= Date.new(year, month, 1).strftime('%b %Y') %>
+    月別アーカイブ： <%= Date.new(year, month, 1).strftime('%b %Y') %>
   <% when 'year' %>
-    <%= year %>
+    年別アーカイブ： <%= year %>
   <% end %>
 </h1>
 
 <% if paginate && num_pages > 1 %>
-  <p>Page <%= page_number %> of <%= num_pages %></p>
-
   <% if prev_page %>
     <p><%= link_to 'Previous page', prev_page %></p>
   <% end %>
@@ -22,7 +20,7 @@ pageable: true
 
 <ul>
   <% page_articles.each_with_index do |article, i| %>
-    <li><%= link_to article.title, article %> <span><%= article.date.strftime('%b %e') %></span></li>
+    <li><%= link_to article.title, article %></li>
   <% end %>
 </ul>
 
