@@ -1,0 +1,97 @@
+---
+title: 超漢字開発環境でrake
+date: 2014-07-19 18:07:45
+tags: mruby_brightv_hello, 
+---
+<a href="http://ornse01.b.sourceforge.jp/2014/07/17/mruby%e3%81%ae%e3%82%af%e3%83%ad%e3%82%b9%e3%82%b3%e3%83%b3%e3%83%91%e3%82%a4%e3%83%ab/" title="mrubyのクロスコンパイル">こないだ</a>のあらすじ。
+
+<ol>
+	<li>とりあえずディレクトリ構成決めっかー</li>
+	<li>超漢字開発環境のサンプルと同じようにsrc/とpcat/分けるやつ。</li>
+	<li>mruby本体はsrc/の下なー。</li>
+	<li>Makefileからmrubyのビルドコマンド呼び出して出来上がったlibmruby.aをリンクすりゃええやろ。</li>
+	<li>ま、とりあえずクロスコンパイル用の設定とか用意する前にホスト環境用のビルドを呼び出してみっかー。</li>
+	<li>できねえorz。</li>
+	<li>原因は超漢字開発環境のmakerulesの変数と環境変数のCCっぽい。</li>
+	<li>……いっそ、MakeやめてRakeにするか。</li>
+</ol>
+
+mrubyのビルドシーケンスの都合上、クロスコンパイルするときでも、ホスト環境のコンパイラも使わにゃならんので、環境変数が書き換わっちゃうと面倒なのよねー。
+
+ちゅーわけで、いっそ<a href="http://docs.ruby-lang.org/ja/2.1.0/library/rake.html" title="Ruby 2.1.0 リファレンスマニュアル &gt; ライブラリ一覧 &gt; rakeライブラリ" target="_blank">rake</a>だな、と。
+
+これなら、ビルドコマンドの指定は環境変数でなくて、rubyの変数でいけるし。なんか不測の事態があっても、最悪rubyでごちゃごちゃコード書けば回避できそうだし。
+
+mrubyを活用しようって人ならrakeのインストールを要求してもええやろ、と。まあmruby本体のビルドにはrakeは要らないんだけどね。
+
+そんなわけで出来上がったのがこちら→<a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/scm/blobs/9a148dd759a153902c72118c89e9b46696f90497/src/Rakefile" title="src/Rakefile" target="_blank">src/Rakefile</a>
+
+超漢字開発環境のサンプルのMakefileを参考にいろいろやってます。
+
+rakeの使い方はこのあたりを参考にしています。
+<ul>
+	<li><a href="http://www2s.biglobe.ne.jp/~idesaku/sss/tech/rake/" title="Rake" target="_blank">Rake</a></li>
+	<li><a href="http://d.hatena.ne.jp/unageanu/20100829/1283069269" title="Rakeの基本的な使い方まとめ" target="_blank">Rakeの基本的な使い方まとめ</a></li>
+	<li><a href="http://d.hatena.ne.jp/shingo-zukunashi/20121215/1355576643" title="Rakefileでg++コンパイルするとき、ヘッダファイルの依存関係をインポートしてみる" target="_blank">Rakefileでg++コンパイルするとき、ヘッダファイルの依存関係をインポートしてみる</a></li>
+	<li><a href="http://d.hatena.ne.jp/ke-k/20080210" title="Rakeメモ - file" target="_blank">Rakeメモ - file</a></li>
+</ul>
+
+<h2>コンパイラとかの指定</h2>
+ファイルの上の方にある"CC"とか"INCDIR"とかの変数にいろいろぶちこんでるやつね。
+
+ここらへんはほぼコピペ。一応rubyっぽく、文字列リテラルのなかに"#{hoge}"とか埋め込むように書き換えたとかはしたけど。
+
+まあ、超漢字開発環境だと、コンパイラ指定とかオプションとかの、ターゲット環境依存の定義は別ファイルにしてるから、そうしたほうがよかったんだろうけど、考えるの面倒だったし、ごちゃっとまとめて。
+
+<h2>ソースファイルとオブジェクトファイル</h2>
+
+.cファイルと.oファイルの関係を記述してるのはこちら。pcat/ディレクトリでrakeを実行して.oや.outなどなどを生成するために、src/ディレクトリ以下の.cファイルを参照してるやつ。
+
+[ruby]
+SRCS = FileList["../src/*.c"]
+OBJS = SRCS.pathmap("%f").ext('o')
+[/ruby]
+
+FileListってのはあれね、rakeでファイルを指定するときに使うやつね。src/ディレクトリ以下の"*.c"ファイル全部ってやつ。
+
+で、オブジェクトファイルは、pcatディレクトリっちゅーか、自ディレクトリ直下に置くようにファイル名を変換している、と。
+
+[ruby] rule '.o' =&gt; [proc{|t| t.pathmap("../src/%n.c") }] do |t|
+ 　sh "#{CC} #{CFLAGS} #{CPPFLAGS} -c #{t.source} -o #{t.name}"
+ end[/ruby]
+
+ここが、.cファイルと.oファイルの依存関係を定義しているところね。
+
+見かけたサンプルって、大体ソースやオブジェクトを同じディレクトリにする構成だったから、別ディレクトリにするときに真似できそうなのが見つからなくってさー。
+
+pathmapってのを使うと、ファイル名の変換規則を定義できるわけで、"*.o"を"../src/*.c"に変換しているわけですな。
+
+……ソース→オブジェクトの変換と、オブジェクト→ソースの変換の二つを書いているのが若干かっこ悪いような。
+
+Makeで言うところのVPATHみたいなしくみがあればなあ。
+
+ところで、<a href="http://docs.ruby-lang.org/ja/1.9.3/method/String/i/pathmap.html" title="instance method String#pathmap" target="_blank">pathmapのリファレンス</a>にさ、
+<blockquote>
+<dl><dt>%f</dt><dd><p>拡張子付きのファイル名を表します。ディレクトリ名は含まれません。</p></dd>
+<dt>%n</dt><dd><p>拡張子なしのファイル名を表します。</p></dd></dl>
+</blockquote>
+って書いてあるからさー。"%n"ってディレクトリ名含まれると思ってたのよね……。だから最初こんな書き方しちゃててさー。
+
+<code>[proc{|t| "../src/" + t.pathmap("%f").pathmap("%n") + ".c"}]</code>
+
+こりゃいくらなんでもなー、とか思って調べてたら、"%n"はディレクトリ名含まないことがわかって今の形に。
+
+<h2>依存関係自動生成</h2>
+Cのソースファイルは複数のヘッダファイルをインクルードできるから、複数のファイルと依存関係ができるわけだけど、修正の度に依存関係も手作業で直してたら大変なので、自動生成〜っていう、お約束の話。
+
+[ruby] file "Dependencies.mf" =&gt; SRCS do |t|
+ 　sh "perl #{MAKEDEPS} #{t.name} #{t.prerequisites.join(' ')}"
+ end
+
+ import "Dependencies.mf"[/ruby]
+
+rakeにMakefile形式の依存関係定義を読み込む機能があるので、超漢字開発環境のツールで出したDependenciesを読み込ませればいいよなー、と思ってたわけなんだけど。
+
+ファイル名の末尾が".mf"でないとダメっていうのに結構ハマりました。(参考：<a href="http://d.hatena.ne.jp/shingo-zukunashi/20121215/1355576643" title="Rakefileでg++コンパイルするとき、ヘッダファイルの依存関係をインポートしてみる" target="_blank">Rakefileでg++コンパイルするとき、ヘッダファイルの依存関係をインポートしてみる</a>)
+
+地味ーにトラップだよねコレ。リファレンスに書いてないし。

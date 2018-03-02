@@ -1,0 +1,20 @@
+---
+title: mrbgems
+date: 2014-07-26 17:12:42
+tags: mruby_brightv_hello, 
+---
+さて、今回のmrubyの話、とりあえずの目標は"hello world"です。とりあえず<a href="https://github.com/mruby/mruby/wiki/Hello-World" title="mruby / mruby Wiki Hello World " target="_blank">これ</a>を元に。
+
+で、hello worldを表示させるには、何らかの出力が必要になります。
+
+ruby的には <code>p</code> というメソッドを使うことになりますが、mrubyでの純粋なコアにはこのメソッドは用意されていません。なんらかの形で、このメソッドもしくはそれの代替を用意することになります。
+
+で、ここで出てくるのが mrbgems です。rubyで言う所の rubygems ですね。最大の違いは、rubygems はruby本体のインストール後に追加するのに対し、mrbgemsは基本的にビルド時に組み込む形になります。
+
+<code>p</code>メソッドは、mrubyのソースに同梱されてる<a href="https://github.com/mruby/mruby/tree/master/mrbgems/mruby-print" title="mruby/mruby /src/mrbgems/mruby-print" target="_blank">mrbgemsの中にある</a>ので、これを使えばいい……と思いきや、fwrite使ってるねコレ。
+
+ちゅーわけで移植しよう。結果がコレ→ <a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/scm/tree/9d0e873af7a07fdc75bf23c321b8f120981e8d1b/src/mrbgems_port/mruby-brightv-print/" title="/src/mrbgems_port/mruby-brightv-print/" target="_blank">/src/mrbgems_port/mruby-brightv-print</a>
+
+まあ、移植と言ってもprintfに書き換えただけだけど。
+
+自作のmrbgemsの組込み方は省略。まあ、ググればすぐ出てくるし。

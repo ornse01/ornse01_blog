@@ -1,0 +1,84 @@
+---
+title: プログラミング言語備忘録
+date: 2014-10-27 23:54:41
+tags: 未分類, 
+---
+最近さー、色々なプログラミング言語について調べているのですよ。
+
+超漢字のアプリケーション開発に使えないかと思ってさあ。
+
+いや、C言語にすっかり慣れきっちゃってはいるんですけど。んでも、もうちょい手軽な言語で作りたいときもあるのですよ。
+
+<a href="http://ornse01.b.sourceforge.jp/2014/07/14/%e8%b6%85%e6%bc%a2%e5%ad%97%e3%81%a7mruby%e3%82%92%e5%8b%95%e3%81%8b%e3%81%97%e3%81%9f%e3%81%84/" title="超漢字でmrubyを動かしたい">mruby</a>を移植してみたのもその一環だったりします。
+
+今日は、そのメモを残してみようと思いました。
+
+<h2><a href="http://clang.llvm.org/" title="Clang" target="_blank">Clang</a>/<a href="http://llvm.org/" title="LLVM" target="_blank">LLVM</a></h2>
+とか言いつついきなりC。
+
+いやさすがにね、超漢字開発環境のgcc2.95.2は若干しんどいのよ。自分でフルスクラッチする分に別にいいんだけど、なんか移植するときとかさあ。
+
+もっと上のバージョンのgccつかって超漢字アプリケーション開発してる例もググると出てくるには出てきますけどね。
+
+ちゅーか、T-Engine開発環境とかはもっと新しいgcc使ってるしなあ。
+
+そこであえての、Clang/LLVMですよ。
+
+いや、ちょっと色々調べて見たところ、Clang/LLVMってクロスコンパイラにするのが簡単らしいのですよ。
+
+gccだとconfigureでターゲット指定してmakeしてインストールしてってなるじゃん。どうも、Clang/LLVMだと<a href="http://clang.llvm.org/docs/UsersManual.html#other-platforms" title="Clang Compiler User's Manual : Other platforms" target="_blank">オプション指定だけでCPUやABIを選択できるっぽい</a>。
+
+まだ実際には試してないけど、多分 i386-unknown-gnu 互換のオブジェクトファイル生成できそうだから、それで開発環境のライブラリとリンクすればいけるんじゃないかなー？
+
+まあ、理想を言えば、PMCが開発環境を更新してくれるとありがたゲフンゲフン。
+
+<h2><a href="http://www.lua.org/" title="The Programming Language Lua" target="_blank">Lua</a>,<a href="http://www.squirrel-lang.org/" title="Squirrel - The Programming Language" target="_blank">Squirrel</a></h2>
+アプリケーション組み込み型と言われるやつですな。
+
+なんだかんだでこないだmrubyやったけど、もしかしたらその代わりに、これらのどっちを移植してたかもしれない。
+
+なんつーかね、スクリプトで拡張できるテキストエディタとか作りたいなあと漠然と考えていてですね、この手のアプリケーション組み込み型を用意しておきたかったのですよ。
+
+<h2><a href="http://ajhc.metasepi.org/" title="Ajhc - Haskell everywhere" target="_blank">Ajhc</a></h2>
+組み込み向けHaskellコンパイラのようです。
+
+どうも、POSIX依存をできる限り減らそうとしてるぽいから、多分BTRONでもいけんじゃね(適当)
+
+ちょっとねー、関数型言語にも興味があってねー。是非ともBTRONで動かした暁には、一つアプリケーション書いてみたいところです。
+
+<h2><a href="http://www.gnu.org/software/guile/" title="GNU Guile (About Guile)" target="_blank">GNU Guile</a></h2>
+関数型言語パート2。こいつはSchemaのインタプリタですな。
+
+アプリケーションに組み込んで使うみたいなので、こいつもBTRONで動かせたらいいな……と淡い期待を抱いています(未調査)
+
+<h2><a href="http://www.ats-lang.org/" title="The ATS Programming Language" target="_blank">ATS言語</a></h2>
+今日見つけた。
+
+ちょいマイナーっぽいけど、DebianとUbuntuにパッケージはありますな。
+
+細かい説明は<a href="http://jats-ug.metasepi.org/" title="JATS-UG - Japan ATS User Group" target="_blank">日本語ユーザーグループ</a>のページを見てもらうとして。
+
+関数型言語のようで。Cのソースを吐き出してくれるらしい。つまりBTRONでも(ry。
+
+まあ、OSのカーネルをこれで書くべし云々とあるので、POSIXの無い環境でも動かせると思うけど。
+
+ちょっと興味深いのは、大抵の言語では隠されるポインタ操作やmalloc/freeなんかが、この言語の世界からは見えていて、なおかつ、正しく操作してることを推論してくれるとか。
+
+C使いとしてはなかなか惹かれる特徴ですな。
+
+<h2>ちゅーわけで</h2>
+これ動くんじゃね？　的なのを並べてみました。
+
+何やるかは未定。多分気が向いたやつ。もしかしたらここに無いやつを突如やりたくなるかもしんない。
+
+関数型言語多めなのは、何となくやってみたいなーと思っているもんでして。O'Camlが上がって無いのは、既に超漢字に移植した例があるそうなんで、まあ自分がやんなくてもいいかなー、と。
+
+とか言いつつ手軽そうなClang/LLVMってのも捨てがたい。ってか、何故やってないかっちゅーと、使ってるDebianのバージョンが若干古いからパッケージのClang/LLVMも若干古くて、かといってパッケージ管理ツール使わずにインストールするのも気が引けるしー。みたいな、割とどうでもいい理由だったりはする。
+
+いっそ、LLVMのバイトコードインタプリタを移植して、マイクロスクリプト互換処理系ってのも、ネタ的にはおもしろいかもねー。
+
+まあ、C以外だと、どうしても BTRON APIのラッパーなりライブラリなりを自分で用意しないといけないのが若干面倒なのよねー。そんなら全部Cでよくね感がどーにもねー。
+
+んでも、TRONコード/TADを、C以外の言語でサクッと操作できたらいいよなー、とか思ったり思わなかったり。
+
+んなことをぐだぐだ考えておりますですハイ。

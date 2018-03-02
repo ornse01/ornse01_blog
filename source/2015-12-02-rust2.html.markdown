@@ -1,0 +1,68 @@
+---
+title: Rustメモ2
+date: 2015-12-02 00:19:26
+tags: 未分類, 
+---
+んで、Rustでクロスコンパイラな方法調べてて気づいたアレコレ。
+
+<h2>target tripleにjson</h2>
+
+どうやら、<code>rustc</code>コマンドの<code>target</code>オプションに指定できる文字列には、決まった文字列の他に、jsonで細かくカスタマイズしたものが指定できるらしい。
+
+<ul><li><a href="https://github.com/rust-lang/rfcs/blob/master/text/0131-target-specification.md" target="_blank">rust-lang/rfcs: 0131-target-specification</a></li><li><a href="http://doc.rust-lang.org/1.0.0/rustc_back/" target="_blank">Crate rustc_back</a></li></ul>
+
+これを使えば、<code>--target i386-pc-brightv-gnu.json</code>みたいな、超漢字っぽいターゲット指定ができるぜー。
+
+んじゃあ、手始めに、libcoreをこのターゲットでビルドして、<a href="/2015/11/26/rust.html">この間</a>のlibcore問題を解決するんじゃね？
+
+リポジトリにsubmoduleか何かでソースいれておいて、ビルドシーケンス中にlibcoreも一緒に自動的にビルドすれば、環境を汚さずに、ビルドディレクトリ内だけで完結するぜー！！
+
+<span style="font-size:x-large">……ダメだったー。</span>
+
+なんか、libcoreをビルドしようとすると、stable featureがどーのこーの、みたいなエラーが沢山出る。
+
+rustの標準ライブラリのAPIにつけるアノテーションみたいなんだけど、名前からするに、仕様がstableになったAPIにつけるんだろうね。
+
+多分、標準のライブラリでないソースコードで勝手に使われるわけには行かないから、普通のビルドじゃ使えないのだろう。
+
+軽く調べた感じ、無効にする方法はよく分からん……。
+
+<h2>multitustのCustom toolchain</h2>
+
+もしかしたら、rustの処理系自体をビルドするときでないと、libcoreその他のライブラリはビルドできないのかもなあ。
+
+んだから、とりあえず試しに自分でビルドしてみっかー。
+
+……なげえ。
+
+去年買ったばかりのそこそこ新しいPCだから、まあサクっと行けんじゃね？　とか思って軽くビルド開始してみたら、長いこと長いこと。
+
+なんか、いろいろsubmoduleに入っていてさあ……。特にllvmがまるごとsubmoduleなもんだから、cloneするのもビルドするの時間かかるわ。ってか、llvmのビルドってこんな時間かかるんだなあ。
+
+こりゃ、おいそれとはビルドできんなあ。
+
+つーわけでこちら。<a href="https://github.com/brson/multirust#custom-toolchains">multirust: Custom toolchain</a>。
+
+multirustには、自分でビルドしたrustを選択する機能もあるそうで。
+
+つか、Rustのインストーラーがどーのこーのって記述があるじゃん。引数でインストーラーを指定すると、multirust的によしなに配置してくれるっぽい感じやね。
+
+ビルドにこんなに時間がかかるなら、超漢字開発環境向けにカスタマイズしたRust環境をインストーラーにして、アプリケーション開発者自身がビルドしなくてもいい状態にするのが綺麗な解決方法っぽいかなあ。
+
+<h2>Rustクロスコンパイラ？</h2>
+つーことでさ、<a href="http://rust-lang/rust-packaging">rust-lang/rust-packaging</a>とか<a href="https://github.com/rust-lang/rust-installer" target="_blank">rust-lang/rust-installer</a>調べてみたんだけど、実行環境とは別のtargetのライブラリを一緒にインストールさせるようなオプションは無いっぽいなあ。
+
+64bitのLinuxのRustコンパイラをインストールしたら、64bitのLinux用のライブラリしか添付しないのね。
+
+まあそうか、基本はセルフ開発環境かあ。RustでOS開発してる勢とかそれなりに居るから需要が無いはずは無いんだろうけどねえ。
+
+このへん、うまいこといじれば、ホスト環境とは別の環境のターゲットのライブラリをもつRust処理系インストーラーとか作れるかなあ？　確証はあんま無いけど。
+
+とりあえず、multirustのcustom toolchainのlink-localが指す先のrustコンパイラのlib以下が、<a href="/2015/11/26/rust.html">先日の構成</a>のようにできればいいんだから、まあなんとかなりそう。
+
+<h2>次の目標</h2>
+とりあえず、超漢字アプリケーション開発用Rust環境の可搬性の検討はこのくらいでいいや。これ以上はかなり踏み込まないとならんので、ちとコストが高い。
+
+そこに手を出す前に、Rustで超漢字アプリケーション開発が可能かどうか、実際にそれなりのアプリケーション作ってみて検証したいところやね。
+
+「行ける！！」となったら、誰でも簡単に開発環境が構築できるように、整備したいですな。

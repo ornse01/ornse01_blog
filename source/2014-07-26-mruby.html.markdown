@@ -1,0 +1,44 @@
+---
+title: mrubyビルドエラーの解決
+date: 2014-07-26 16:50:01
+tags: mruby_brightv_hello, 
+---
+んで、mrubyのソースを超漢字開発環境でビルドするわけですが、すんなり通れば苦労はしないわけでして。
+
+元にしたmrubyのリビジョンは 5c50bcd20a68394da3b90cf2ac3fba2b1ed43cff ですね。リビジョンが変わると、当然使われてる色々は変わってきます。
+
+<h2>定義とか</h2>
+
+Cのレベルの話。ヘッダファイルとかdefineとか関数とか、超漢字開発環境だと不足しているやつですねー。
+
+今回はunixエミュレータ無しで挑戦しているので、そもそも存在しないものもあるので。最低限ビルドが通る程度には自作して用意しなくてはなりません。
+
+ちゅーわけで用意したのがこちら。
+<ul><li><a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/scm/tree/9d0e873af7a07fdc75bf23c321b8f120981e8d1b/src/posix_include/" title="src/posix_include" target="_blank">src/posix_include</a> ……ヘッダファイル定義</li><li><a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/scm/blobs/9d0e873af7a07fdc75bf23c321b8f120981e8d1b/src/posix.c" title="src/posix.c" target="_blank">src/posix.c</a> ……実装</li></ul>
+
+各ファイルの中を直接見てもらえれば分かると思いますが、例えば string.h は そのまま bstring.h をインクルードする感じです。その上で、不足している定義を足しています。
+
+実装を追加したのは、数値がらみのいくつかと、fprintfとsnprintfですね。一応、mrubyのビルド時に、<code>DISABLE_STDIO</code>は指定してあるのですが、fprintfとsnprintfの呼び出しは無くならない様子。
+
+まあ、ざっくり作ったのであんまり汎用的に使えるもんじゃないですが、とりあえずビルド通す程度にはいいかな、と。
+
+いやでも、案外簡単に揃ったので良い感じです。
+
+<h2>mruby本体側の修正</h2>
+……んで、mruby本体側。リビジョン変更時の追従作業とか考えると、本体に手は出したくなかったのですが、どうにもならない箇所があって。
+
+んなわけで、mrubyをフォークして<a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/" title="作業部屋：mruby-brightv-port" target="_blank">作業部屋</a>を作成。
+
+修正はこれ。→<a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_port/scm/commits/903c08491dbdaf232dc96abe698e651d07d906e7" title="コミット詳細： http://sourceforge.jp/users/ornse01/pf/mruby_brightv_port/scm/commits/903c08491dbdaf232dc96abe698e651d07d906e7" target="_blank">903c08491dbdaf232dc96abe698e651d07d906e7</a>
+
+要するにこれねー。
+[c]
+struct alloca_header {
+  struct alloca_header *next;
+  char buf[];   // コレ
+};
+[/c]
+
+構造体定義の配列のメンバーの長さ指定ねー。これの省略がgccの2.95.2だと使えない……。
+
+これはどうしても、ソースに手を出さざるを得ないよなー。
