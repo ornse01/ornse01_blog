@@ -30,7 +30,7 @@ fgetコマンドにエンコーディングを指定するオプションは見�
 とコマンドを打ちまして、
 
 で、この画面のところで、インストールしたいlocaleにチェックを入れます。今回入れたいのはen_USなのでこんな感じかな？
-<a href="http://ornse01.b.sourceforge.jp/files/2015/01/dpkg_reconfigure_locale.png"><img src="http://ornse01.b.sourceforge.jp/files/2015/01/dpkg_reconfigure_locale.png" alt="dpkg_reconfigure_locale" width="641" height="386" class="alignnone size-full wp-image-210" /></a>
+<a href="/2015/01/17/proftpdlocale/dpkg_reconfigure_locale.png"><img src="/2015/01/17/proftpdlocale/dpkg_reconfigure_locale.png" alt="dpkg_reconfigure_locale" width="641" height="386" class="alignnone size-full wp-image-210" /></a>
 en_US.UTF-8は要らんと思うけどまあ一応。
 
 次の画面でシステムのlocaleを指定するんですけど、今回は変更しないので省略。

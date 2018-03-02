@@ -5,6 +5,6 @@ tags: bchan, btron,
 ---
 ちなみに、今はbchanという超漢字向け2ちゃんねるブラウザを作っています。　<a href="http://bchan.sourceforge.jp/">http://bchan.sourceforge.jp/</a>
 
-<a href="http://ornse01.b.sourceforge.jp/files/2011/08/install.png"><img class="alignnone size-full wp-image-8" src="http://ornse01.b.sourceforge.jp/files/2011/08/install.png" alt="" width="771" height="298" /></a>
+<a href="/2011/08/02/bchan/install.png"><img class="alignnone size-full wp-image-8" src="/2011/08/02/bchan/install.png" alt="" width="771" height="298" /></a>
 とりあえず、インストール法の画像とか貼って見る。（よさげな画像が無かった……）
 まあブログツールとか作ってないで、こっちを先に作りこめって話ではありますが……。
