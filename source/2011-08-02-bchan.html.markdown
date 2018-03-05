@@ -1,6 +1,6 @@
 ---
 title: bchan
-date: 2011-08-02 15:19:57
+date: 2011-08-02 15:19:57+09:00
 tags: bchan, btron, 
 ---
 ちなみに、今はbchanという超漢字向け2ちゃんねるブラウザを作っています。　<a href="http://bchan.sourceforge.jp/">http://bchan.sourceforge.jp/</a>

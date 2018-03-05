@@ -1,6 +1,6 @@
 ---
 title: mrubyとlong doubleとfmt_fp.c
-date: 2015-12-10 23:58:10
+date: 2015-12-10 23:58:10+09:00
 tags: mruby_brightv_hello, 
 ---
 ちゅーわけで、<a href="/2015/12/10/mruby-120.html">コレ</a>について詳しく調べたので、改めて。

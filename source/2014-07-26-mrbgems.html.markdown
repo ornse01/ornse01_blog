@@ -1,6 +1,6 @@
 ---
 title: mrbgems
-date: 2014-07-26 17:12:42
+date: 2014-07-26 17:12:42+09:00
 tags: mruby_brightv_hello, 
 ---
 さて、今回のmrubyの話、とりあえずの目標は"hello world"です。とりあえず<a href="https://github.com/mruby/mruby/wiki/Hello-World" title="mruby / mruby Wiki Hello World " target="_blank">これ</a>を元に。

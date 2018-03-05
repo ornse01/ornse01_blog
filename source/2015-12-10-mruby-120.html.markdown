@@ -1,6 +1,6 @@
 ---
 title: mruby-1.2.0対応作業
-date: 2015-12-10 22:37:06
+date: 2015-12-10 22:37:06+09:00
 tags: mruby_brightv_hello, 
 ---
 mrubyの1.2.0が<a href="http://forum.mruby.org/download/index4.html" target="_blank">最近リリースされた</a>よ。

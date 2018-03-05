@@ -1,6 +1,6 @@
 ---
 title: 超漢字開発環境でrake
-date: 2014-07-19 18:07:45
+date: 2014-07-19 18:07:45+09:00
 tags: mruby_brightv_hello, 
 ---
 <a href="http://ornse01.b.sourceforge.jp/2014/07/17/mruby%e3%81%ae%e3%82%af%e3%83%ad%e3%82%b9%e3%82%b3%e3%83%b3%e3%83%91%e3%82%a4%e3%83%ab/" title="mrubyのクロスコンパイル">こないだ</a>のあらすじ。

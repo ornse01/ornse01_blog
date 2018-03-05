@@ -1,6 +1,6 @@
 ---
 title: mruby-brightv-hello ビルドプロセス
-date: 2014-07-27 20:41:06
+date: 2014-07-27 20:41:06+09:00
 tags: mruby_brightv_hello, 
 ---
 <a href="https://github.com/mruby/mruby/tree/e43341b4607a2596ba2b6542acc8406912cf289a/doc/compile#build-process" title="mruby/mruby mruby/doc/compile/Readme.md build-process" target="_blank">このドキュメント</a>を参考にしつつ、<a href="http://sourceforge.jp/users/ornse01/pf/mruby_brightv_hello/wiki/FrontPage" title="作業部屋 mruby-brightv-hello" target="_blank">mruby-brightv-hello</a>のビルドプロセスを説明してみるでござるの巻。

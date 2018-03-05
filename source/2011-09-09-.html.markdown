@@ -1,6 +1,6 @@
 ---
 title: 名前の付け方整理したい
-date: 2011-09-09 18:54:43
+date: 2011-09-09 18:54:43+09:00
 tags: bchan, 
 ---
 とりあえず、今<a href="http://bchan.sourceforge.jp/" target="_blank">bchan</a>のスレッド一覧の方を色々いじっているわけですが、名前がごっちゃごっちゃ……。

@@ -1,6 +1,6 @@
 ---
 title: 超漢字開発環境のPATHの話
-date: 2015-02-16 22:21:09
+date: 2015-02-16 22:21:09+09:00
 tags: btron, 
 ---
 Protocol Buffersコンパイラ開発中のお話。
