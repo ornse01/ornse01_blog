@@ -59,7 +59,7 @@ SourceForge.JP的には、開発が続けられないプロジェクトはその
 
 だから、申請から承認までちょっとタイムラグがあるわけでして……、
 
-<a href="http://ornse01.b.sourceforge.jp/files/2015/03/history_first.png"><img src="http://ornse01.b.sourceforge.jp/files/2015/03/history_first.png" alt="BTRON BBS BROWSER KIT プロジェクト承認" width="411" height="291" class="alignnone size-full wp-image-223" /></a>
+<a href="/2015/03/31/btron-bbs-browser-kit/history_first.png"><img src="/2015/03/31/btron-bbs-browser-kit/history_first.png" alt="BTRON BBS BROWSER KIT プロジェクト承認" width="411" height="291" class="alignnone size-full wp-image-223" /></a>
 
 <span style="font-size:xx-large">早っ！？</span>
 
